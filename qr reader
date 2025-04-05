@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Scan Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      background: white;
+      padding: 2rem;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .notice {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      color: #555;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome</h1>
+    <p>Thank you for scanning this QR code.</p>
+    <div class="notice">
+      This site uses anonymous local storage to track unique scans. No personal data is stored.
+    </div>
+    <button onclick="dismissNotice()">OK</button>
+  </div>
+
+  <script>
+    const UID_KEY = 'qr-unique-scan';
+
+    function generateUID() {
+      return 'uid-' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+
+    async function trackUniqueVisit() {
+      if (!localStorage.getItem(UID_KEY)) {
+        const uid = generateUID();
+        localStorage.setItem(UID_KEY, uid);
+
+        // Send to your tracking backend (replace this URL with your Firebase/Sheets endpoint)
+        fetch('https://your-backend-endpoint.com/api/increment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid })
+        });
+      }
+    }
+
+    function dismissNotice() {
+      document.querySelector('.notice').style.display = 'none';
+    }
+
+    trackUniqueVisit();
+  </script>
+</body>
+</html>
