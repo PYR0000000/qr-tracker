@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QR Scan Tracker</title>
   <style>
     body {
@@ -40,13 +40,25 @@
     <h1>Welcome</h1>
     <p>Thank you for scanning this QR code.</p>
     <div class="notice">
-      This site uses anonymous local storage to track unique scans. No personal data is stored.
+      This tracker uses anonymous browser data (local storage) to count new device scans. No personal data is stored.
     </div>
     <button onclick="dismissNotice()">OK</button>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
   <script>
     const UID_KEY = 'qr-unique-scan';
+
+    // Firebase config
+    const firebaseConfig = {
+      databaseURL: "https://qr-scqn-tracker-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     function generateUID() {
       return 'uid-' + Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -57,12 +69,8 @@
         const uid = generateUID();
         localStorage.setItem(UID_KEY, uid);
 
-        // Send to your tracking backend (replace this URL with your Firebase/Sheets endpoint)
-        fetch('https://your-backend-endpoint.com/api/increment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid })
-        });
+        const countRef = db.ref('scanCount');
+        countRef.transaction(current => (current || 0) + 1);
       }
     }
 
